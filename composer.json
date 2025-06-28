@@ -1,0 +1,21 @@
+{
+  "require": {
+    "php": "^8.0",
+    "ext-gd": "*"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^2.1.0",
+    "squizlabs/php_codesniffer": "^3.13.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Spaceboy\\DitherImage\\": "src/"
+    }
+  },
+  "scripts": {
+    "phpstan": "php vendor/bin/phpstan analyse src/ --level=9"
+  },
+  "scripts-descriptions": {
+    "phpstan": "PHP Static analyse (level 9)"
+  }
+}
