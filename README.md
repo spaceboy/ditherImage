@@ -1,0 +1,2 @@
+# ditherImage
+Image dithering
