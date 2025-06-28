@@ -2,15 +2,16 @@
 
 namespace Spaceboy\DitherImage\Model\Exceptions;
 
-use Exception;
+use RuntimeException;
 use Throwable;
 
 /**
  * Parent of package exceptions.
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
-abstract class ADitherImageException extends Exception
+abstract class ADitherImageException extends RuntimeException
 {
     /** @var string Inheritable error message. */
     protected const MESSAGE = '';

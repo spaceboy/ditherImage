@@ -15,11 +15,13 @@ use Spaceboy\DitherImage\Model\Exceptions\ADitherImageException;
 use Spaceboy\DitherImage\Model\Exceptions\FileNotFoundException;
 use Spaceboy\DitherImage\Model\Exceptions\IncorrectImageException;
 use Spaceboy\DitherImage\Model\Exceptions\UnknownMethodException;
+use Spaceboy\DitherImage\Model\RgbColor;
 
 /**
  * Image dithering tool.
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class DitherImage
 {
@@ -47,7 +49,30 @@ final class DitherImage
     /** @var int Stucki dithering. */
     public const STUCKI = 8;
 
-    private GdImage $image;
+    /** @var RgbColor|null Black color. */
+    private ?RgbColor $colorBlack = null;
+
+    /** @var RgbColor|null White color. */
+    private ?RgbColor $colorWhite = null;
+
+    /** @var int Threshold (black/white). */
+    private int $threshold = 127;
+
+    /** @var string Default black color. */
+    private const DEFAULT_BLACK = '000000';
+
+    /** @var string Default white color. */
+    private const DEFAULT_WHITE = 'ffffff';
+
+    /**
+     * Constructor.
+     * Create instance using static functions {@see self::fromJpeg()}, {@see self::fromPng()}, {@see self::fromString()}...
+     *
+     * @param GdImage $image
+     */
+    private function __construct(private GdImage $image)
+    {
+    }
 
     /**
      * Open JPEG image from filename.
@@ -57,13 +82,10 @@ final class DitherImage
      * @return self
      * @throws ADitherImageException
      */
-    public function fromJpeg(string $fileName): self
+    public static function fromJpeg(string $fileName): self
     {
         self::checkImageFile($fileName);
-
-        $this->image = self::checkImage(@imagecreatefromjpeg($fileName));
-
-        return $this;
+        return new self(self::checkImage(@imagecreatefromjpeg($fileName)));
     }
 
     /**
@@ -74,13 +96,10 @@ final class DitherImage
      * @return self
      * @throws ADitherImageException
      */
-    public function fromPng(string $fileName): self
+    public static function fromPng(string $fileName): self
     {
         self::checkImageFile($fileName);
-
-        self::checkImage(@imagecreatefrompng($fileName));
-
-        return $this;
+        return new self(self::checkImage(@imagecreatefrompng($fileName)));
     }
 
     /**
@@ -91,11 +110,9 @@ final class DitherImage
      * @return self
      * @throws ADitherImageException
      */
-    public function fromString(string $imageString): self
+    public static function fromString(string $imageString): self
     {
-        self::checkImage(@imagecreatefromstring($imageString));
-
-        return $this;
+        return new self(self::checkImage(@imagecreatefromstring($imageString)));
     }
 
     /**
@@ -108,7 +125,8 @@ final class DitherImage
      */
     public function dither(int $method = self::FLOYD_STEINBERG): GdImage
     {
-        $ditherer = match ($method) {
+        $ditherer = match ($method)
+        {
             self::ATKINSON => new DithererAtkinson($this->image),
             self::BURKES => new DithererBurkes($this->image),
             self::FLOYD_STEINBERG => new DithererFloydSteinberg($this->image),
@@ -120,7 +138,53 @@ final class DitherImage
             default => UnknownMethodException::throw($method),
         };
 
-        return $ditherer->dither();
+        return $ditherer->dither(
+            $this->threshold,
+            $this->colorBlack ?? new RgbColor(self::DEFAULT_BLACK),
+            $this->colorWhite ?? new RgbColor(self::DEFAULT_WHITE)
+        );
+    }
+
+    /**
+     * Set color for "black" (e.g. "000" or "#000000").
+     *
+     * @param string $color
+     *
+     * @return self
+     */
+    public function setBlack(string $color): self
+    {
+        $this->colorBlack = new RgbColor($color);
+
+        return $this;
+    }
+
+    /**
+     * Set threshold (0-255); lower => lighter, higher => darker.
+     *
+     * @param int $threshold
+     *
+     * @return self
+     */
+    public function setThreshold(int $threshold): self
+    {
+        $this->threshold = $threshold;
+
+        return $this;
+    }
+
+    /**
+     * Set color for "white" (e.g. "fff" or "#ffffff").
+     *
+     * @param string $color
+     *
+     * @return self
+     */
+    public function setWhite(string $color): self
+    {
+        $this->colorWhite = new RgbColor($color);
+
+        return $this;
     }
 
     /**

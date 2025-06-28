@@ -1,4 +1,14 @@
 {
+  "name": "spaceboy/dither-image",
+  "description": "Image dithering library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Spaceboy"
+    }
+  ],
+  "keywords": ["spaceboy", "php", "image", "dithering"],
   "require": {
     "php": "^8.0",
     "ext-gd": "*"

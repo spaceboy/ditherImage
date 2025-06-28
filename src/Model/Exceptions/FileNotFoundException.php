@@ -6,6 +6,7 @@ namespace Spaceboy\DitherImage\Model\Exceptions;
  * "File not found" exception.
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class FileNotFoundException extends ADitherImageException
 {

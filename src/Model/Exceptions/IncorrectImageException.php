@@ -6,6 +6,7 @@ namespace Spaceboy\DitherImage\Model\Exceptions;
  * "Incorrect image" exception".
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class IncorrectImageException extends ADitherImageException
 {

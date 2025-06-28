@@ -4,6 +4,9 @@ namespace Spaceboy\DitherImage\Model\Ditherers;
 
 /**
  * Implementation of Jarvis-Judice-Ninke dithering.
+ *
+ * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class DithererJarvis extends ADitherer
 {

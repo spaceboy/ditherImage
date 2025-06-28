@@ -6,6 +6,7 @@ namespace Spaceboy\DitherImage\Model\Exceptions;
  * "Unknown dithering method" exception.
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class UnknownMethodException extends ADitherImageException
 {

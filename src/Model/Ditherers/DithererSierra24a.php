@@ -4,6 +4,9 @@ namespace Spaceboy\DitherImage\Model\Ditherers;
 
 /**
  * Implementation of Sierra 2-4a dithering.
+ *
+ * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class DithererSierra24a extends ADitherer
 {

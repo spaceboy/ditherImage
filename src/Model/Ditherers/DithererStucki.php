@@ -4,6 +4,9 @@ namespace Spaceboy\DitherImage\Model\Ditherers;
 
 /**
  * Implementation of Stucki dithering.
+ *
+ * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 final class DithererStucki extends ADitherer
 {

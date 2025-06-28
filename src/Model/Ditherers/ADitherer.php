@@ -3,19 +3,24 @@
 namespace Spaceboy\DitherImage\Model\Ditherers;
 
 use GdImage;
+use Spaceboy\DitherImage\Model\Exceptions\IncorrectImageException;
+use Spaceboy\DitherImage\Model\RgbColor;
 
 /**
  * Parent of ditherers.
  *
  * @author Spaceboy <jiri.votocek@centrum.cz>
+ * @licence MIT
  */
 abstract class ADitherer
 {
     /** @var array<int, array<int, int>> Image colors map. */
     protected array $map = [];
 
+    /** @var int Image height. */
     protected int $height;
 
+    /** @var int Image width. */
     protected int $width;
 
     /** @var int Initial margin color. */
@@ -25,19 +30,37 @@ abstract class ADitherer
      * Konstruktor.
      *
      * @param GdImage $image
+     *
+     * @throws IncorrectImageException
      */
     public function __construct(protected GdImage $image)
     {
-        $this->width = imagesx($image);
-        $this->height = imagesy($image);
+        $width = imagesx($image);
+        /** @phpstan-ignore identical.alwaysFalse */
+        if ($width === false) {
+            IncorrectImageException::throw();
+        }
+
+        $height = imagesy($image);
+        /** @phpstan-ignore identical.alwaysFalse */
+        if ($height === false) {
+            IncorrectImageException::throw();
+        }
+
+        $this->width = $width;
+        $this->height = $height;
     }
 
     /**
      * Dithering method.
      *
+     * @param int      $threshold
+     * @param RgbColor $black
+     * @param RgbColor $white
+     *
      * @return GdImage
      */
-    public function dither(): GdImage
+    public function dither(int $threshold, RgbColor $black, RgbColor $white): GdImage
     {
         $image = $this->image;
 
@@ -48,6 +71,9 @@ abstract class ADitherer
 
         $widthLimit = $width + 5;
         $heightLimit = $height + 5;
+
+        $blackColor = $black->colorAllocate($this->image);
+        $whiteColor = $white->colorAllocate($this->image);
 
         for ($y = -5; $y < 0; ++$y) {
             $this->map[$y] = array_fill(-5, $widthLimit + 5, self::INIT_COLOR);
@@ -67,12 +93,11 @@ abstract class ADitherer
 
         for ($y = 0; $y < $height; ++$y) {
             for ($x = 0; $x < $width; ++$x) {
+                // TODO: Threshold sem?
                 $old = min(255, $this->map[$y][$x]);
-                // TODO: Nějaký threshold?
+                // TODO: Nebo threshold sem?
                 $new = ($old >> 7) << 7;
-
                 $this->map[$y][$x] = $new;
-
                 $error = $old - $new;
                 $this->ditherPixel($x, $y, $error);
             }
@@ -80,10 +105,8 @@ abstract class ADitherer
 
         for ($y = 0; $y < $height; ++$y) {
             for ($x = 0; $x < $width; ++$x) {
-                $gray = $this->map[$y][$x];
-                // TODO: Lepší výběr barev (imagecolorallocate - $black / $white)?
-                $rgb = ($gray << 16) + ($gray << 8) + $gray;
-                imagesetpixel($image, $x, $y, $rgb);
+                // TODO: A/nebo threshold sem?
+                imagesetpixel($image, $x, $y, ($this->map[$y][$x] <= $threshold ? $blackColor : $whiteColor));
             }
         }
 
